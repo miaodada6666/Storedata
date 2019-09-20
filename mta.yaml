@@ -1,0 +1,40 @@
+_schema-version: 2.0.0
+ID: emcdemo
+version: 1.0.0
+modules:
+  - name: emcdemo-srv
+    type: java
+    path: srv
+    parameters:
+      memory: 512M
+    provides:
+      - name: srv_api
+        properties:
+          url: ${default-url}
+    requires:
+      - name: emcdemo-db-hdi-container
+        properties:
+          JBP_CONFIG_RESOURCE_CONFIGURATION: '[tomcat/webapps/ROOT/META-INF/context.xml:
+            {"service_name_for_DefaultDB" : "~{hdi-container-name}"}]'
+      - name: emcdemo-uaa
+  - name: emcdemo-db
+    type: hdb
+    path: db
+    parameters:
+      memory: 256M
+      disk-quota: 256M
+    requires:
+      - name: emcdemo-db-hdi-container
+resources:
+  - name: emcdemo-uaa
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service-plan: default
+      service: xsuaa
+      config:
+        xsappname: emcdemo-${space}
+        tenant-mode: dedicated
+  - name: emcdemo-db-hdi-container
+    type: com.sap.xs.hdi-container
+    properties:
+      hdi-container-name: ${service-name}

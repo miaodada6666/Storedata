@@ -1,0 +1,28 @@
+---
+server.port: ${PORT:8080} # get the server port from (CF) environment if present. Otherwise fallback to 8080.
+
+spring:
+  # Data Source configurations. Change this to the values of your created HANA service instance.
+  datasource:
+    "url": "jdbc:sap://localhost:25511?encrypt=true&validateCertificate=false&currentschema=70E212DC0E124E088B285A90E0766D4E"
+    "username": "70E212DC0E124E088B285A90E0766D4E_1C1SYRDI35XYO9J9H5D9QNS7J_RT"
+    "password": "Aw6XbUn2Gyf-YYVIRrjrdQUWuoD.d3B1a4-ttA_a2IDRV1tLmMZ-AiY24z2Lko6454xNFsb3cH6SzA6Ul4YZhfBp4x888bztzx.UyDgIh_u4cAe4keLSWgwbkRbNo_Hp"
+
+    # hostname_in_certificate: localhost,
+    driverClassName: com.sap.db.jdbc.Driver
+    type:            com.zaxxer.hikari.HikariDataSource
+    hikari:
+      maximumPoolSize: 1
+
+---
+# Cloud Foundry Specific Overrides.
+spring:
+  profiles: cloud    # to activate the profile the 'spring.profiles.active' environment property needs to be set. See manifest.yml.
+  datasource:        # read the data source connection properties from VCAP_SERVICES. See manifest.yml for declaration of 'db_service_instance_name'.
+    url:             ${vcap.services.${db_service_instance_name}.credentials.url}
+    username:        ${vcap.services.${db_service_instance_name}.credentials.user}
+    password:        ${vcap.services.${db_service_instance_name}.credentials.password}
+    driverClassName: ${vcap.services.${db_service_instance_name}.credentials.driver}
+    type:            com.zaxxer.hikari.HikariDataSource
+    hikari:
+      maximumPoolSize: 10
